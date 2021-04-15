@@ -19,11 +19,19 @@ router.get("/:code", async (req, res, next) => {
     try {
         const code = req.params.code;
         const results = await db.query(
-            `SELECT code, name, description FROM companies WHERE code = $1`, [code]);
+            `SELECT code, name, description 
+            FROM companies
+            WHERE code = $1`,
+            [code]);
+        const invoice = await db.query(
+            `SELECT * FROM invoices 
+            JOIN companies on companies.code = invoices.comp_code
+            WHERE comp_code=$1`,
+            [code]);
         if (results.rows.length === 0) {
             throw new ExpressError("No such company exists", 404)
         }
-        return res.json({ company: results.rows[0] });
+        return res.json({ company: results.rows[0], invoices: invoice });
     } catch (e) {
         return next(e['message'])
     }
@@ -32,7 +40,10 @@ router.get("/:code", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
     try {
         let { code, name, description } = req.body;
-        let results = await db.query(`INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description`, [code, name, description]);
+        let results = await db.query(
+            `INSERT INTO companies (code, name, description) V
+            ALUES ($1, $2, $3)
+            RETURNING code, name, description`, [code, name, description]);
         return res.status(201).json(results.rows[0])        
     } catch (e) {
         next(e)
@@ -65,7 +76,8 @@ router.put("/:code", async function (req, res, next) {
 router.delete("/:code", async (req, res, next) => {
     try {
         const code = req.params.code;
-        let result = db.query('DELETE FROM companies WHERE code = $1', [code])
+        let result = db.query(
+            'DELETE FROM companies WHERE code = $1', [code])
 
         if (result.rows.length === 0) {
             throw new ExpressError("No such company code", 404)
