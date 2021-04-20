@@ -12,6 +12,7 @@ afterAll(async () => {
   await db.end()
 })
 
+// get route testing
 describe("GET /companies", () => {
     test("get all company", async () => {
         const res = await request(app).get("/companies");
@@ -33,6 +34,7 @@ describe("GET /companies", () => {
     });
 });
 
+// post route testing
 describe("POST /companies", () => {
     test("test post route", async () => {
         const res = await request(app)
@@ -51,3 +53,33 @@ describe("POST /companies", () => {
 });
     })
 })
+
+// put route testing
+describe("PUT /companies/:code", function () {
+    test("update a company", async () => {
+        const res = await request(app)
+            .put("/companies/apple")
+            .send({
+                "code": "apple",
+                "name": "Apple",
+                "description": "You made a change"
+            });
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({
+                "code": "apple",
+                "name": "Apple",
+                "description": "You made a change"
+            });
+    })
+})
+
+// delete route testing
+describe("DELETE /companies/:code", function () {
+    test("update a company", async () => {
+        const res = await request(app)
+            .delete("/companies/apple");
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({status: "DELETED"})
+    });
+
+});
