@@ -20,19 +20,24 @@ router.get("/:code", async (req, res, next) => {
     try {
         const code = req.params.code;
         const results = await db.query(
-            `SELECT code, name, description 
-            FROM companies
-            WHERE code = $1`,
+            `SELECT c.code, c.name, c.description, i.industry
+            FROM companies AS c
+            JOIN companies_industries as ci
+            ON ci.c_code = c.code 
+            LEFT JOIN industries as i
+            ON i.code = ci.i_code
+            WHERE c.code = $1`,
             [code]);
+        
         const invoice = await db.query(
-            `SELECT * FROM invoices 
+            `SELECT id, comp_code, amt, paid, add_date FROM invoices 
             JOIN companies on companies.code = invoices.comp_code
             WHERE comp_code=$1`,
             [code]);
         if (results.rows.length === 0) {
             throw new ExpressError("No such company exists", 404)
         }
-        return res.json({ company: results.rows[0], invoices: invoice });
+        return res.json({ company: results.rows[0], invoices: invoice.rows });
     } catch (e) {
         return next(e['message'])
     }
