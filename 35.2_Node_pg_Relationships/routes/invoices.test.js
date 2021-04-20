@@ -36,3 +36,12 @@ describe("/POST /invoices", function () {
         expect(res.body.invoice['amt']).toEqual(9876)
     })
 })
+
+
+describe("DELETE /invoice/:code", function () {
+    test("delete route", async () => {
+        const res = await request(app).delete("/invoices/1")
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({status: "deleted"});
+    })
+})
