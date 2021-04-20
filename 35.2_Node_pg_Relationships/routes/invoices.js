@@ -1,5 +1,6 @@
 const db = require('../db');
 const express = require('express');
+const slugify = ('slugify');
 const router = express.Router();
 const ExpressError = require('../expressError');
 
