@@ -8,9 +8,9 @@ const db = require("../db");
 /** A reservation for a party */
 
 class Reservation {
-  constructor({id, customerId, numGuests, startAt, notes}) {
+  constructor({id, customer_id, numGuests, startAt, notes}) {
     this.id = id;
-    this.customerId = customerId;
+    this.customerId = customer_id;
     this.numGuests = numGuests;
     this.startAt = startAt;
     this.notes = notes;
@@ -37,6 +37,26 @@ class Reservation {
     );
 
     return results.rows.map(row => new Reservation(row));
+  }
+
+  /**Saves a reservation */
+  async save() {
+
+    if (this.id === undefined) {
+      await db.query(
+        `INSERT INTO reservations
+        (customer_id, start_at, num_guests, notes)
+        VALUES ($1, $2, $3, $4)
+        RETURNING customer_id, start_at, num_guests, notes`,
+        [this.customerId, this.startAt, this.numGuests, this.notes]      
+      )
+    } else {
+      await db.query(
+        `UPDATE reservation
+        SET customer_id=$1, start_at=$2, num_guests=$3, notes=$4
+        WHERE id=$5`,
+        [this.customerId, this.startAt, this.numGuests, this.notes, this.id]);
+    }
   }
 }
 
