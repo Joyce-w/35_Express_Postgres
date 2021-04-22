@@ -53,6 +53,19 @@ class Customer {
     return new Customer(customer);
   }
 
+  // get customer's full name
+  async fullName() {
+    let name = await db.query(`
+        SELECT id, 
+        first_name AS "firstName",  
+        last_name AS "lastName"
+      FROM customers WHERE id = $1`,
+      [this.id])
+    const { firstName, lastName } = name.rows[0]
+    const fullName = `${firstName} ${lastName}`
+    return fullName;
+  }
+
   /** get all reservations for this customer. */
 
   async getReservations() {
